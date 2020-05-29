@@ -1,0 +1,111 @@
+/*ID: johnath8
+ LANG: JAVA
+ TASK: wormhole
+ */
+import java.io.*;
+import java.util.*;
+import java.util.Scanner;
+import java.lang.Math;
+class wormhole
+{
+    public static int findPair(int[][]pairings, int index)
+    {
+        int i1=0;
+        int j1=0;
+        for(int i=0; i<pairings.length; i++)
+        {
+            for(int j=0; j<2; j++)
+            {
+                if(index==pairings[i][j])
+                {
+                    i1=i;
+                    j1=j;
+                    break;
+                }
+            }
+        }
+        return pairings[i1][(j1+1)%2];
+    }
+    public static boolean isCycle(int[] xVals, int[] yVals, int[][] pairings)
+    {
+        
+        for(int i=0; i<xVals.length; i++)
+        {
+            int currentWormholeExited=i;
+            int currentXVal=xVals[i];
+            int currentYVal=yVals[i];
+            for(int j=0; j<xVals.length; j++)
+            {
+                if(nextOnRight(xVals, yVals, currentWormholeExited)==-1)
+                    continue;
+                else if(j==xVals.length/2-1 && nextOnRight(xVals, yVals, currentWormholeExited)!=-1)
+                    return true;
+                else
+                {
+                    int currentWormholeEntered=nextOnRight(xVals, yVals, currentWormholeExited);
+                    currentWormholeExited=findPair(pairings, currentWormholeEntered);
+                    currentXVal=xVals[currentWormholeExited];
+                    currentYVal=yVals[currentWormholeExited];
+                }
+            }
+        }
+        return false;
+    }
+    public static int nextOnRight(int[] xVals, int[] yVals, int currentWormholeExited)
+    {
+        int currentXVal=xVals[currentWormholeExited];
+        int currentYVal=yVals[currentWormholeExited];
+        ArrayList<Integer> xValNew=new ArrayList<Integer>();
+        int nextOnRightIndex=-1;
+        int smallest=1000000;
+        for(int i=0; i<yVals.length; i++)
+        {
+            if(currentYVal==yVals[i] && currentXVal-xVals[i]<smallest)
+            {
+                smallest=currentXVal-xVals[i];
+                nextOnRightIndex=i;
+            }
+        }
+        return nextOnRightIndex;
+    }
+    public static void main(String[] args) throws IOException 
+    {
+        BufferedReader f = new BufferedReader(new FileReader("wormhole.in"));
+        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("wormhole.out")));
+        int n = Integer.parseInt(f.readLine());
+        int[] x=new int[n];
+        int[] y=new int[n];
+        int[] pairings=new int[n];
+        BufferedReader pairingReader = new BufferedReader(new FileReader("wormhole" + n + ".out"));
+        
+        String index="";
+        
+        for(int i=0; i<n; i++)
+        {
+            StringTokenizer st=new StringTokenizer(f.readLine());
+            x[i]=Integer.parseInt(st.nextToken());
+            y[i]=Integer.parseInt(st.nextToken());
+        }
+        int[][] currentPairing=new int[n/2][2];
+        int count=0;
+        while(pairingReader.ready())
+        {
+            for(int i=0; i<n/2; i++)
+            {
+                int count1=0;
+                StringTokenizer pairReader=new StringTokenizer(pairingReader.readLine());
+                currentPairing[i][0]=Integer.parseInt(pairReader.nextToken());
+                currentPairing[i][1]=Integer.parseInt(pairReader.nextToken());
+                
+            }
+                 
+            if(isCycle(x, y, currentPairing)==true)
+            {
+                count++;
+            }
+        }
+        out.println(count);
+        out.close();
+        System.exit(0);
+    }
+}
